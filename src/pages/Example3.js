@@ -1,53 +1,70 @@
 import React, { useState } from 'react'
 import Example_3 from './../components/Example3'
-import { styled } from 'styled-components'
 
-const Content = styled.div`
-    
-    border: 1px solid #ddd;
-`
 
-const ContentItem = styled.div`
-    border: 1px solid #ddd;
-    
-`
 function Example3() {
 
-    let [data,setData] = useState(Example_3)
-    let [animal,setAnimal] = useState("전체");
+    const [data,setData] = useState(Example_3)
+    const [animal,setAnimal] = useState("전체");
+    const [gender, setGender] = useState("전체");
 
-    const dataFilter = data.filter(e =>{
-        if(animal === "전체"){
-            return e.animal
-        }else{
-            return e.animal === animal
-        }
+    const FilterAnimal = data.filter(e =>{
+
+        let isAnimal = animal === "전체" || e.animal === animal;
+        let isGender = gender === "전체" || e.gender === gender;
+        return isAnimal && isGender
+
+        // return(animal === "전체" ? e.animal : e.animal === animal);
+
+        // if(animal === "전체"){
+        //     return e.animal
+        // }else{
+        //     return e.animal === animal
+        // }
     })
 
-    const FilterAnimal = [...new Set(data.map(e => e.animal))]
-    console.log(FilterAnimal)
+    const filterCate = [...new Set(data.map(e => e.animal))]
+    const filterGender = [...new Set(data.map(e => e.gender))]
 
   return (
-    <Content>
-        <ul>
-            <li onClick={()=>{setAnimal("전체")}}>전체</li>
-            {
-                FilterAnimal.map((e,i)=>{
-                    return(
-                        <ContentItem key={i} onClick={()=>{setAnimal(e)}}>{e}</ContentItem>
-                    )
-                })
-            }
-        </ul>
-        {
-            dataFilter.map((el,i)=>{
-                return(
-                    <p key={i}>품종 : {el.animal} 성별 : {el.gender}</p>
-                )
-            })
-        }
-    </Content>
-
+    <>
+        <div>
+            <ul>
+                <li>전체</li>
+                {/* 쓰기전용의 animal을 변경해서 전체누르면 전체나오게하기 */}
+                {
+                    filterCate.map((e,i)=>{
+                        return(
+                            <li key={i} onClick={()=>{setAnimal(e)}}>{e}</li>
+                        )
+                    })
+                }
+            </ul>           
+            <ul>
+                <li>전체</li>
+                {/* 쓰기전용의 animal을 변경해서 전체누르면 전체나오게하기 */}
+                {
+                    filterGender.map((e,i)=>{
+                        return(
+                            <li key={i} onClick={()=>{setGender(e)}}>{e}</li>
+                        )
+                    })
+                }
+            </ul>
+        </div>
+        {/* {gender}*/}
+        <div>
+            <ul>
+                {
+                    FilterAnimal.map((e,i)=>{
+                        return(
+                            <li key={i}>{e.animal} - {e.gender} - {e.height}</li>
+                        )
+                    }) //기본문법
+                }
+            </ul>
+        </div>
+    </>
   )
 }
 
