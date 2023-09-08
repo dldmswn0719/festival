@@ -82,18 +82,11 @@ const Pagination = styled.div`
       border-radius: 5px;
       cursor: pointer;
       background-color: #fff;
+      padding: 5px 20px;
       &.on{
         background-color: pink;
         font-weight: bold;
         color: #fff;
-      }
-      &.on a{
-        color: #fff;
-      }
-      a{
-        display: inline-block;
-        width: 100%;
-        padding: 5px 20px;
       }
     }
   }
@@ -102,7 +95,7 @@ const Pagination = styled.div`
 function Main() {
 
   const [data,setData] = useState();
-
+  const [allData, setAllData] = useState();
   const list = 10; //화면에 보이는갯수
   const [page,setPage] = useState(1); //페이지 숫자, 처음이 1페이지니까
   const [totalCnt,setTotalCnt] = useState(0); //만약에 1000개라면 현재 페이지12개하면 1000나누니 12해야기때문에 총갯수 넣어줌
@@ -110,32 +103,61 @@ function Main() {
   const pagination = 5; //5개씩 보일거임
   const totalPage = Math.floor(totalCnt / list);
 
+  let startPage, endPage; //변수는 지정해두는데 값은 지정하지않겠다
+
+  const currentBlock = Math.ceil(page / pagination); //소수점을 올려서 표현
+  startPage = (currentBlock -1) * pagination +1;
+  endPage = startPage + pagination -1;
+
+  if(endPage > totalPage){
+    endPage = totalPage;
+  }
+
+  const PrevBlock = () =>{
+    if(startPage > 1){
+      setPage(startPage - pagination);
+    }
+  }
+
+  const NextBlock = () =>{
+    if(endPage < totalPage){
+      setPage(startPage + pagination)
+    }
+  }
+
   const PageList = [];
-  for(let i = 0; i < totalPage; i++){
+  for(let i = startPage; i <= endPage; i++){
     PageList.push(
-      <li key={i} className={(page === i+1 ? "on" : "")} >
-        <NavLink to='/'onClick={()=>{setPage(i+1)}}>{i+1}</NavLink>
+      <li key={i} className={(page === i ? "on" : "")} onClick={()=>{setPage(i)}}>
+        {i}
       </li>
       //실제 데이터는 3개가 돈다. 총30개,10개 나누기 / 1,2,3페이지
     )
   }
 
   useEffect(()=>{
-    // // axios.get(`https://apis.data.go.kr/6260000/FestivalService/getFestivalKr?serviceKey=${process.env.REACT_APP_APIKEY}&pageNo=${page}&numOfRows=10&resultType=json`)
-    // .then(function(res){
-    //   setData(res.data.getFestivalKr.item);
-    //   setTotalCnt(res.data.getFestivalKr.totalCount);
-    //   console.log(res)
-    // })
+    axios.get(`https://apis.data.go.kr/6260000/FestivalService/getFestivalKr?serviceKey=${process.env.REACT_APP_APIKEY}&pageNo=${page}&numOfRows=10&resultType=json`)
+    .then(function(res){
+      setData(res.data.getFestivalKr.item);
+      setTotalCnt(res.data.getFestivalKr.totalCount);
+      // setTotalCnt(500); //페이지 50개 나올거임
+      console.log(res)
+    })
     // console.log(data)
   },[page])
+
+  useEffect(()=>{
+    axios.get(`https://apis.data.go.kr/6260000/FestivalService/getFestivalKr?serviceKey=${process.env.REACT_APP_APIKEY}&pageNo=1&numOfRows=100&resultType=json`)
+    .then(function(res){
+      setAllData(res.data.getFestivalKr.item);
+    })
+  },[])
 
   const FilterData = data && data.filter(e=>{
     return gugun === "전체" || gugun === e.GUGUN_NM
   })
 
-  const FilterGugun = [...new Set(data && data.map(e=>e.GUGUN_NM))];
-  console.log(FilterGugun)
+  const FilterGugun = [...new Set(allData && allData.map(e=>e.GUGUN_NM))];
   const [isActive,setIsActive] = useState(-1)
 
   return (
@@ -155,7 +177,7 @@ function Main() {
               {
                 data && FilterGugun.map((e,i)=>{
                   return(
-                    <li className={isActive === i ? 'on' : ''} onClick={()=>{setIsActive(i); setGugun(e)}} key={i}>{e} {i}</li>
+                    <li className={isActive === i ? 'on' : ''} onClick={()=>{setIsActive(i); setGugun(e)}} key={i}>{e}</li>
                   )
                 })
               }
@@ -193,17 +215,20 @@ function Main() {
         </Content>
         <Pagination>
           <ul>
-            <li onClick={()=>{
+            {/* <li onClick={()=>{
               (page === 1 ? alert("더 이상 데이터가 없습니다.") : setPage(page-1))
-            }}><NavLink to="/">이전</NavLink></li>
-            {
+            }}><NavLink to="/">이전</NavLink></li> */}
+            <li onClick={PrevBlock}>이전</li>
+            {PageList}
+            {/* {
               PageList.map(e=>{
                 return e
               })
-            }
-            <li onClick={()=>{
+            } */}
+            {/* <li onClick={()=>{
               (page === totalPage ? alert("더 이상 데이터가 없습니다.") : setPage(page+1))
-              }}><NavLink to="/">다음</NavLink></li>
+              }}><NavLink to="/">다음</NavLink></li> */}
+            <li onClick={NextBlock}>다음</li>
           </ul>
         </Pagination>
     </>
