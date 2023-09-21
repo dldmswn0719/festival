@@ -38,8 +38,6 @@ const ContentItem = styled.div`
   }
 `
 
-// https://apis.data.go.kr/6260000/FestivalService/getFestivalKr?serviceKey=yRNDRWiJjGZ1GBkhKjRNe7ffpJAuDx5T5VsqMTe%2FKGBnfDxeibjTEal69wO1y8DZJ8BirG%2FTmPHH4GusA6gVEQ%3D%3D&pageNo=1&numOfRows=10&resultType=json
-
 const Category = styled.div`
   width: 100%;
   margin-bottom: 1.2%;
